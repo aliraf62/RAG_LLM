@@ -1,0 +1,395 @@
+# customers/myCustomer1/myCustomer1.yaml
+# --------------------------------------------------------------------------- #
+# MyCustomer1 customer identity                                               #
+# --------------------------------------------------------------------------- #
+
+customer_id: myCustomer1
+display_name: MyCustomer1
+description: "Enterprise customer instance with modular configuration structure"
+
+# --------------------------------------------------------------------------- #
+# Core configuration management                                               #
+# --------------------------------------------------------------------------- #
+config:
+  # Dataset definitions (all datasets that should be processed)
+  datasets:
+    - workflow_relational
+    - marketing
+    - product_doc
+
+# --------------------------------------------------------------------------- #
+# Settings overrides (merge on top of root config)                            #
+# --------------------------------------------------------------------------- #
+settings:
+  MODEL: gpt-4o-mini
+  TOP_K: 7
+  SIMILARITY_THRESHOLD: 0.25
+  ENABLE_CITATIONS: true
+  CAPTION_ASSETS: true
+  EXPORT_TO_HTML: true
+  SMART_CLASSIFY: true
+
+  VECTORSTORE_OUTPUT_ROOT: customers/myCustomer1/vector_store
+  LOADER_PROVIDER: html_fs
+  CHUNKER_PROVIDER: html
+  VECTORSTORE_PROVIDER: faiss
+  EMBEDDER_PROVIDER: openai
+  EXPORT_LIMIT: 5
+
+  # ---------- metadata configuration ----------------------------------------
+  CANONICAL_METADATA_KEYS:
+    - title
+    - source
+    - dataset
+    - content_type
+    - content_purpose
+    - categories
+    - tags
+    - language
+    - creation_date
+    - last_modified
+    - author
+
+  # ---------- classification configuration ------------------------------------
+  classification:
+    # Title matches get this weight multiplier
+    title_boost: 2.0
+
+    # Main product domains
+    domain_keywords:
+      workflow:
+        - ["workflow", 2.0]
+        - ["optimization", 2.0]
+        - ["what-if", 1.0]
+        - ["scenario", 1.0]
+      sourcing:
+        - ["sourcing", 2.0]
+        - ["rfp", 1.5]
+        - ["rfq", 1.5]
+        - ["event", 1.2]
+        - ["auction", 1.2]
+      procurement:
+        - ["procurement", 2.0]
+        - ["purchase", 1.5]
+        - ["requisition", 1.5]
+      finance:
+        - ["finance", 2.0]
+        - ["invoice", 1.5]
+        - ["supplier", 1.0]
+
+    # Subdomains within each product area
+    subdomain_keywords:
+      workflow_optimization:
+        - ["optimization", 1.5]
+        - ["scenario", 1.5]
+        - ["what-if", 1.5]
+        - ["award", 1.2]
+      workflow_process:
+        - ["workflow", 1.5]
+        - ["guide", 1.5]
+        - ["step", 1.2]
+      workflow_evaluation:
+        - ["scoring", 1.5]
+        - ["weighting", 1.5]
+        - ["evaluation", 1.5]
+        - ["qualification", 1.2]
+
+    # Content purpose classification
+    purpose_keywords:
+      how_to:
+        - ["how to", 2.0]
+        - ["step by step", 2.0]
+        - ["guide", 1.5]
+        - ["tutorial", 1.5]
+        - ["instructions", 1.5]
+        - ["workflow", 1.2]
+        - ["steps", 1.2]
+        - ["procedure", 1.2]
+        - ["process", 1.2]
+        - ["create", 1.0]
+        - ["set up", 1.0]
+        - ["configure", 1.0]
+        - ["setup", 1.0]
+      explanatory:
+        - ["overview", 2.0]
+        - ["introduction", 2.0]
+        - ["explains", 1.5]
+        - ["description", 1.5]
+        - ["understanding", 1.5]
+        - ["concept", 1.5]
+        - ["what is", 1.5]
+        - ["definition", 1.2]
+        - ["why", 1.0]
+      reference:
+        - ["reference", 2.0]
+        - ["documentation", 2.0]
+        - ["specification", 1.5]
+        - ["details", 1.5]
+        - ["field", 1.2]
+        - ["parameter", 1.2]
+        - ["attribute", 1.2]
+        - ["format", 1.0]
+        - ["api", 1.0]
+
+  # ---------- domain routing ------------------------------------------------
+  SUBJECT_DOMAINS:
+    workflow:
+      keywords:
+        - ["workflow",       2.0]
+        - ["scenario",       1.0]
+        - ["what-if",        1.0]
+    sourcing:
+      keywords:
+        - ["sourcing",       2.0]
+        - ["rfp",            1.5]
+        - ["event",          1.2]
+    finance:
+      keywords:
+        - ["finance",        2.0]
+        - ["invoice",        1.5]
+        - ["supplier",       1.0]
+  PRODUCT_PROBABILITY_THRESHOLD: 0.7
+
+  # Prompt templates
+  PROMPT_TEMPLATES:
+    default: >
+      You are an expert on enterprise workflows. Answer using only the provided Context.
+    workflow: >
+      You are an expert on workflow optimization. Answer using only the
+      provided Context.
+    sourcing: >
+      You are an expert on sourcing processes. Answer using only the provided Context.
+
+# --------------------------------------------------------------------------- #
+# Dataset definitions                                                         #
+# --------------------------------------------------------------------------- #
+datasets:
+  # Sample dataset using the relational data loader and extractor
+  workflow_relational:
+    type: relational
+    include: true
+    description: "Enterprise Workflow Guides (Relational Data Pipeline)"
+    file: customers/myCustomer1/datasets/sample_workflow.xlsb
+    schema_config: customers/myCustomer1/config/workflow_relational_schema.yaml
+    assets_dir: customers/myCustomer1/datasets/workflow_assets
+    loader: relational_data
+    extractor: relational_data
+    exporter: html
+    export_limit: 5
+    loader_config:
+      sheet_names:
+        - guide
+        - guideStep
+        - guideStepSection
+        - guideDoc
+        - guideFolder
+        - guideFolderRelation
+    extractor_config:
+      extract_assets: true
+      clean_columns: true
+    # Dataset-specific classification settings
+    classification:
+      # This dataset is specifically for workflow guides
+      subject_domains:
+        - workflow           # Primary domain
+        - workflow_process  # Primary subdomain
+      # Boost certain terms for this specific dataset
+      domain_boost:
+        workflow: 2.0
+        process: 1.5
+        guide: 1.5
+
+  marketing:
+    type: parquet
+    include: true
+    description: "Marketing Website Export"
+    file: customers/myCustomer1/datasets/marketing_export.parquet
+    content_col: content
+    url_col: url
+    title_col: title
+    exporter: parquet_html
+    # Dataset-specific classification settings
+    classification:
+      # Marketing content covers multiple domains
+      subject_domains:
+        - workflow
+        - sourcing
+        - procurement
+        - finance
+      # Boost marketing-specific terms
+      domain_boost:
+        marketing: 2.0
+        feature: 1.5
+        benefits: 1.5
+
+  product_doc:
+    type: parquet
+    include: true
+    description: "Product Documentation Export"
+    file: customers/myCustomer1/datasets/product_documentation_export.parquet
+    content_col: content
+    url_col: url
+    title_col: title
+    exporter: parquet_html
+    # Dataset-specific classification settings
+    classification:
+      # Product docs cover all domains
+      subject_domains:
+        - workflow
+        - sourcing
+        - procurement
+        - finance
+        - contracts
+      # Boost documentation-specific terms
+      domain_boost:
+        documentation: 2.0
+        reference: 1.5
+        guide: 1.5
+
+# --------------------------------------------------------------------------- #
+# Vector-store subpaths (under VECTORSTORE_OUTPUT_ROOT)                       #
+# --------------------------------------------------------------------------- #
+vector_stores:
+  # Using settings.VECTORSTORE_PROVIDER to dynamically determine folder structure
+  # Each dataset gets its own namespace under the provider folder
+  # Format: {provider}/{dataset_name}
+  workflow_relational: "{provider}/workflow_relational"
+  marketing: "{provider}/marketing"
+  product_doc: "{provider}/product_doc"
+
+# This configuration will result in paths like:
+# customers/myCustomer1/vector_store/faiss/workflow_relational
+# customers/myCustomer1/vector_store/faiss/marketing
+# customers/myCustomer1/vector_store/faiss/product_doc
+
+# --------------------------------------------------------------------------- #
+# Cleaner and Chunker fine-tune                                               #
+# --------------------------------------------------------------------------- #
+cleaners:
+  html:
+    preserve_tables: true
+    remove_tags: [script, style, nav, footer, custom-tag]
+
+chunkers:
+  html:
+    chunk_size: 500
+    chunk_overlap: 50
+
+# --------------------------------------------------------------------------- #
+# Metadata extraction tweaks                                                  #
+# --------------------------------------------------------------------------- #
+metadata:
+  extractor:
+    purpose_patterns:
+      how_to:      ["how to", "step by step", "instructions", "guide", "tutorial", "workflow"]
+      visual:      ["screenshot", "diagram", "figure"]
+      explanatory: ["explain", "definition", "overview"]
+    custom:
+      domain_specific_keywords: true
+      terminology: true
+
+# --------------------------------------------------------------------------- #
+# Classification configuration                                                #
+# --------------------------------------------------------------------------- #
+classification:
+  # Use offline mode by default to prevent data leakage to external services
+  offline_mode: true
+
+  # Title matches get this weight multiplier
+  title_boost: 2.0
+
+  # Keywords that boost the weight of specific product terms
+  # These will be included in tags if they appear in content
+  product_terms:
+    workflow: 5.0         # Workflow optimization
+    sourcing: 4.0         # Sourcing products
+    procurement: 4.0      # Procurement products
+    invoicing: 4.0        # Invoicing
+    finance: 4.0          # Finance
+    contracts: 4.0        # Contracts
+
+  # Main product domains with weighted keywords
+  domain_keywords:
+    workflow:
+      - ["workflow", 5.0]
+      - ["process optimization", 3.0]
+      - ["what-if", 1.0]
+      - ["scenario", 1.5]
+      - ["optimization", 2.5]
+    sourcing:
+      - ["sourcing", 4.0]
+      - ["rfp", 1.5]
+      - ["rfq", 1.5]
+      - ["event", 1.2]
+      - ["auction", 1.2]
+    procurement:
+      - ["procurement", 4.0]
+      - ["purchase", 1.5]
+      - ["requisition", 1.5]
+    finance:
+      - ["finance", 4.0]
+      - ["invoice", 1.5]
+      - ["supplier", 1.0]
+
+  # Subdomains within each product area
+  subdomain_keywords:
+    workflow_optimization:
+      - ["optimization", 1.5]
+      - ["scenario", 1.5]
+      - ["what-if", 1.5]
+      - ["award", 1.2]
+    workflow_process:
+      - ["workflow", 1.5]
+      - ["guide", 1.5]
+      - ["step", 1.2]
+    workflow_evaluation:
+      - ["scoring", 1.5]
+      - ["weighting", 1.5]
+      - ["evaluation", 1.5]
+      - ["qualification", 1.2]
+    sourcing_event:
+      - ["event", 1.5]
+      - ["rfp", 1.5]
+      - ["rfq", 1.5]
+      - ["bid", 1.2]
+    sourcing_supplier:
+      - ["supplier", 1.5]
+      - ["auction", 1.5]
+      - ["negotiation", 1.2]
+
+  # Content purpose classification
+  purpose_keywords:
+    how_to:
+      - ["how to", 2.0]
+      - ["step by step", 2.0]
+      - ["guide", 1.5]
+      - ["tutorial", 1.5]
+      - ["instructions", 1.5]
+      - ["workflow", 1.2]
+      - ["steps", 1.2]
+      - ["procedure", 1.2]
+      - ["process", 1.2]
+      - ["create", 1.0]
+      - ["set up", 1.0]
+      - ["configure", 1.0]
+      - ["setup", 1.0]
+    explanatory:
+      - ["overview", 2.0]
+      - ["introduction", 2.0]
+      - ["explains", 1.5]
+      - ["description", 1.5]
+      - ["understanding", 1.5]
+      - ["concept", 1.5]
+      - ["what is", 1.5]
+      - ["definition", 1.2]
+      - ["why", 1.0]
+    reference:
+      - ["reference", 2.0]
+      - ["documentation", 2.0]
+      - ["specification", 1.5]
+      - ["details", 1.5]
+      - ["field", 1.2]
+      - ["parameter", 1.2]
+      - ["attribute", 1.2]
+      - ["format", 1.0]
+      - ["api", 1.0]

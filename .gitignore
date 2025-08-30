@@ -1,9 +1,14 @@
 # Company-specific directories and files
-customers/mycoupa/
 data/
 outputs/
 temp/
 ai_qna_assistant.egg-info/
+
+# Exclude real datasets and credentials but keep code structure
+customers/*/datasets/
+customers/*/config/credentials.json
+customers/*/config/datasets/
+**/sample_product_documentation/
 
 # Environment files
 .env
