@@ -1,0 +1,60 @@
+[tool.poetry]
+name = "ai_qna_assistant"
+version = "0.1.0"
+description = "Modular GenAI RAG pipeline for enterprise document Q&A"
+authors = ["Ali Rafieefar <aliraf62@gmail.com>"]
+license = "BSD-3-Clause"
+readme = "README.md"
+packages = [
+    { include = "cli" },
+    { include = "core" },
+    { include = "core/pipeline" },
+    { include = "customers" }
+]
+
+[tool.poetry.dependencies]
+python = ">=3.9"
+beautifulsoup4 = "*"
+lxml = "*"
+tiktoken = "*"
+faiss-cpu = "*"
+pandas = "*"
+pyarrow = "*"
+rich = "*"
+openai = ">=1.3.7"
+pyxlsb = "*"
+orjson = "*"
+html2text = "*"
+tabulate = "*"
+openpyxl = "*"
+langdetect = "*"
+langchain = "*"
+colorama = "*"
+typer = "*"
+python-dotenv = "*"
+matplotlib = "*"
+seaborn = "*"
+wordcloud = "*"
+pydot = "*"
+networkx = "*"
+markdown = "*"
+nltk = ">=3.7"
+filelock = "*"
+flake8 = "*"
+pytest = "*"
+pluggy = "*"
+xlwings = "*"
+keybert = ">=0.7.0"
+pke = { git = "https://github.com/boudinfl/pke.git" }
+
+[tool.poetry.scripts]
+aiqa = "cli.commands:app"
+
+[tool.poetry.extras]
+graphviz = ["graphviz"]
+pygraphviz = ["pygraphviz"]
+dev = ["pytest", "flake8", "black", "isort", "mypy"]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

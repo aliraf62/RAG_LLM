@@ -1,0 +1,19 @@
+type: object
+title: Content Schema
+description: Schema for content metadata
+properties:
+  content:
+    type: string
+    description: The content text
+  content_type:
+    type: string
+    description: Type of the content (e.g., text, html, markdown)
+    enum: [text, html, markdown]
+  language:
+    type: string
+    description: Content language code
+    default: en
+required:
+  - content
+  - content_type
+
