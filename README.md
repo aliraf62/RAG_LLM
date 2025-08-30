@@ -80,9 +80,9 @@ customers/myCustomer1/
 [project]
 name = "ai_qna_assistant"
 version = "0.1.0"
-description = "Modular GenAI RAG pipeline for Coupa CSO & Sourcing guides"
+description = "Modular GenAI RAG pipeline for myCustomer1 guides"
 authors = [
-    { name = "Ali Rafieefar", email = "ali.rafieefar@coupa.com" }
+    { name = "Ali Rafieefar", email = "aliraf62@gmail.com" }
 ]
 readme = "README.md"
 requires-python = ">=3.9"
