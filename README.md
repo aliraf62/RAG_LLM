@@ -43,6 +43,40 @@ python scripts/build_vector_index_from_html.py --html-root path/to/docs --out ve
 # Query the knowledge base
 python -m cli query "Your question here"
 ```
+
+## 🏗 Architecture Highlights
+
+### Customer-Specific Adapters
+The system supports **plugin-based customer configurations** in the `customers/` directory:
+
+```
+customers/myCustomer1/
+├── myCustomer1.yaml              # Main customer configuration
+├── classification_config.py      # Custom classification rules
+├── config/
+│   ├── workflow_relational_schema.yaml  # Data schema definitions
+│   └── users.json                # User management
+├── formatters/
+│   └── workflow_formatter.py     # Custom content formatters
+└── utils/
+    ├── classifiers.py            # Domain-specific classifiers
+    └── formatters.py             # Text processing utilities
+```
+
+### Modular Pipeline Architecture
+- **Extractors**: Pull data from Excel, HTML, and other formats
+- **Cleaners**: Normalize and clean document content  
+- **Chunkers**: Intelligent text segmentation with overlap
+- **Embedders**: Convert text to vector representations
+- **Retrievers**: FAISS-powered semantic search
+- **Generators**: RAG-based response generation with citations
+
+### Enterprise Features
+- **Multi-tenant support** with customer-specific configurations
+- **Schema-driven data processing** for complex Excel workbooks
+- **Asset management** for images and downloadable files
+- **Metadata enrichment** with automatic classification and tagging
+- **Conversation memory** for contextual multi-turn interactions
 [project]
 name = "ai_qna_assistant"
 version = "0.1.0"
