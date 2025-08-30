@@ -184,7 +184,7 @@ regex==2024.11.6
     # via
     #   nltk
     #   tiktoken
-requests==2.32.3
+requests==2.32.4
     # via
     #   langchain
     #   langsmith
