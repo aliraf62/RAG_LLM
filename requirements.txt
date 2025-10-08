@@ -76,7 +76,7 @@ langchain-core==0.3.58
     # via
     #   langchain
     #   langchain-text-splitters
-langchain-text-splitters==0.3.8
+langchain-text-splitters==0.3.9
     # via langchain
 langdetect==1.0.9
     # via ai_qna_assistant (pyproject.toml)
