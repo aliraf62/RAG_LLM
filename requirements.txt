@@ -72,7 +72,7 @@ kiwisolver==1.4.8
     # via matplotlib
 langchain==0.3.25
     # via ai_qna_assistant (pyproject.toml)
-langchain-core==0.3.58
+langchain-core==0.3.80
     # via
     #   langchain
     #   langchain-text-splitters
